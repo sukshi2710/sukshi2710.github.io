@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday, My Love!</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Confetti.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/confetti-js@0.0.18/dist/index.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(to right bottom, #fbcfe8, #f0abfc); /* Soft pink/purple gradient */
+            display: flex;
+            flex-direction: column; /* Allow content to stack vertically */
+            justify-content: center; /* Center content vertically */
+            align-items: center;
+            min-height: 100vh; /* Ensure it takes full viewport height */
+            margin: 0;
+            padding: 2rem 0; /* Add some vertical padding to ensure content isn't stuck to edges */
+            overflow-y: auto; /* Allow vertical scrolling if content overflows */
+            overflow-x: hidden; /* Prevent horizontal scrolling */
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.9); /* Slightly transparent white */
+            backdrop-filter: blur(10px); /* Frosted glass effect */
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            padding: 2.5rem;
+            max-width: 90%;
+            width: 600px; /* Max width for the container */
+            text-align: center;
+            position: relative;
+            z-index: 10; /* Ensure content is above confetti */
+            flex-shrink: 0; /* Prevent container from shrinking on small screens */
+        }
+        .confetti-canvas {
+            position: fixed; /* Keep confetti canvas fixed */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5; /* Below content, above background */
+            pointer-events: none; /* Allow clicks to pass through */
+        }
+
+        /* Styles for the hidden message part */
+        .hidden-message {
+            max-height: 0; /* Start with no height */
+            opacity: 0; /* Start completely transparent */
+            overflow: hidden; /* Hide overflowing content */
+            transition: max-height 0.7s ease-out, opacity 0.7s ease-out; /* Smooth transition */
+            margin-top: 0; /* No margin initially */
+        }
+        .hidden-message.revealed {
+            max-height: 500px; /* Max height when revealed (adjust if your message is very long) */
+            opacity: 1; /* Fully visible */
+            margin-top: 1rem; /* Add some top margin when revealed */
+        }
+
+        /* Countdown Timer Specific Styles (now Elapsed Time) */
+        .countdown-container {
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-top: 1.5rem; /* Adjusted margin for spacing between elements */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-wrap: wrap; /* Allow items to wrap on smaller screens */
+            justify-content: center;
+            gap: 1rem; /* Space between time units */
+        }
+        .countdown-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 70px; /* Ensure items have a minimum width */
+        }
+        .countdown-value {
+            font-size: 2.5rem; /* Large numbers */
+            font-weight: 700; /* Bold */
+            color: #ec4899; /* Pink color */
+            line-height: 1; /* Tight line height */
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+        }
+        .countdown-label {
+            font-size: 0.9rem; /* Smaller labels */
+            color: #6b7280; /* Gray color for labels */
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 0.25rem;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 640px) {
+            .container {
+                padding: 1.5rem; /* Smaller padding on small screens */
+                max-width: 95%; /* Allow more width on very small screens */
+            }
+            .countdown-value {
+                font-size: 2rem; /* Smaller numbers on mobile */
+            }
+            .countdown-item {
+                min-width: 60px;
+            }
+            .countdown-container {
+                padding: 1rem;
+                gap: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="confetti-canvas" class="confetti-canvas"></canvas>
+
+    <div class="container flex flex-col items-center justify-center space-y-8">
+        <!-- Main Image -->
+        <img src="test.png"
+             alt="Happy Birthday"
+             class="w-full max-w-md h-auto rounded-xl shadow-lg object-cover transform transition-transform duration-300 hover:scale-105"
+             onerror="this.onerror=null;this.src='https://placehold.co/400x400/FFD1DC/6B7280?text=Image+Not+Found';">
+
+        <!-- Birthday Message -->
+        <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold text-pink-600 leading-tight">
+            Happy Birthday, My Dearest!
+        </h1>
+        <p class="text-lg sm:text-xl text-gray-700 max-w-2xl">
+            To the most amazing person in my life, even though we're miles apart, my heart is always with you. Wishing you a day filled with joy, laughter, and everything you wish for!
+        </p>
+
+        <!-- First Time Elapsed Counter Section (e.g., Her Life Journey) -->
+        <h2 class="text-2xl font-bold text-purple-600 mt-4">Her Beautiful Journey Since 2004!</h2>
+        <div class="countdown-container">
+            <div class="countdown-item">
+                <span id="years1" class="countdown-value">00</span>
+                <span class="countdown-label">Years</span>
+            </div>
+            <div class="countdown-item">
+                <span id="months1" class="countdown-value">00</span>
+                <span class="countdown-label">Months</span>
+            </div>
+            <div class="countdown-item">
+                <span id="days1" class="countdown-value">00</span>
+                <span class="countdown-label">Days</span>
+            </div>
+            <div class="countdown-item">
+                <span id="hours1" class="countdown-value">00</span>
+                <span class="countdown-label">Hours</span>
+            </div>
+            <div class="countdown-item">
+                <span id="minutes1" class="countdown-value">00</span>
+                <span class="countdown-label">Minutes</span>
+            </div>
+            <div class="countdown-item">
+                <span id="seconds1" class="countdown-value">00</span>
+                <span class="countdown-label">Seconds</span>
+            </div>
+        </div>
+
+        <!-- Second Time Elapsed Counter Section (e.g., Our Story Since 2023) -->
+        <h2 class="text-2xl font-bold text-purple-600 mt-8">Our Story Since 2023!</h2>
+        <div class="countdown-container">
+            <div class="countdown-item">
+                <span id="years2" class="countdown-value">00</span>
+                <span class="countdown-label">Years</span>
+            </div>
+            <div class="countdown-item">
+                <span id="months2" class="countdown-value">00</span>
+                <span class="countdown-label">Months</span>
+            </div>
+            <div class="countdown-item">
+                <span id="days2" class="countdown-value">00</span>
+                <span class="countdown-label">Days</span>
+            </div>
+            <div class="countdown-item">
+                <span id="hours2" class="countdown-value">00</span>
+                <span class="countdown-label">Hours</span>
+            </div>
+            <div class="countdown-item">
+                <span id="minutes2" class="countdown-value">00</span>
+                <span class="countdown-label">Minutes</span>
+            </div>
+            <div class="countdown-item">
+                <span id="seconds2" class="countdown-value">00</span>
+                <span class="countdown-label">Seconds</span>
+            </div>
+        </div>
+
+        <!-- Hidden Message Part -->
+        <div id="secretMessage" class="hidden-message text-md sm:text-lg text-gray-600 max-w-2xl text-justify">
+            <p>
+                Every moment with you is a treasure, and even though we can't be together physically today, our connection transcends distance. You inspire me, make me laugh, and fill my life with so much happiness. I'm incredibly grateful for you.
+            </p>
+            <p class="mt-4">
+                I hope this special day brings you all the joy you deserve. I'm sending you the biggest virtual hug and all my love. Can't wait to make more beautiful memories with you soon!
+            </p>
+            <p class="mt-4 font-semibold text-pink-500">
+                With all my love, <br> [Your Name Here]
+            </p>
+        </div>
+
+        <!-- Button to next page -->
+        <button id="nextPageButton"
+                class="bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transform transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-4 focus:ring-purple-300 active:scale-95">
+            Reveal Message & See More Memories!
+        </button>
+    </div>
+
+    <script>
+        // Initialize confetti
+        const confettiSettings = {
+            target: 'confetti-canvas',
+            max: 150, // Max particles
+            size: 1.2, // Particle size
+            props: ['circle', 'square', 'triangle', 'line'], // Particle shapes
+            colors: [[165,104,246],[230,61,135],[0,199,228],[253,214,126]], // Custom colors
+            clock: 25, // Animation speed
+            rotate: true, // Rotate particles
+            start_from_edge: false, // Start from center
+            respawn: true // Keep confetti coming
+        };
+        const confetti = new ConfettiGenerator(confettiSettings);
+
+        // Get the button and secret message elements
+        const nextPageButton = document.getElementById('nextPageButton');
+        const secretMessage = document.getElementById('secretMessage');
+        let messageRevealed = false; // Flag to track if message is revealed
+
+        // Add click event listener to the button
+        nextPageButton.addEventListener('click', () => {
+            if (!messageRevealed) {
+                // First click: reveal the message
+                secretMessage.classList.add('revealed');
+                nextPageButton.textContent = "See More Memories!"; // Change button text
+                messageRevealed = true;
+                // Optional: Scroll to the bottom of the revealed message if it's long
+                secretMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else {
+                // Second click (or if already revealed): trigger confetti and navigate
+                // Start confetti burst
+                confetti.render();
+
+                // Optional: Stop confetti after a few seconds if it's continuous
+                setTimeout(() => {
+                    confetti.clear(); // Clear confetti
+                    // Navigate to the next page after a short delay to let confetti show
+                    window.location.href = 'carousel.html'; // This will be your second page
+                }, 1500); // Adjust delay as needed
+            }
+        });
+
+        // Pre-load images (optional, but good for performance)
+        const preloadImage = new Image();
+        preloadImage.src = "test.png";
+
+
+        // --- Time Elapsed Counter Logic for First Timer (e.g., Her Life Journey) ---
+        // !!! IMPORTANT: Set the START DATE for the first timer here !!!
+        // This could be her birth date, or any other significant date from 2004.
+        const startDate1 = new Date('January 1, 2004 00:00:00').getTime(); // Placeholder: Set this to the actual start date!
+
+        const yearsSpan1 = document.getElementById('years1');
+        const monthsSpan1 = document.getElementById('months1');
+        const daysSpan1 = document.getElementById('days1');
+        const hoursSpan1 = document.getElementById('hours1');
+        const minutesSpan1 = document.getElementById('minutes1');
+        const secondsSpan1 = document.getElementById('seconds1');
+
+        function updateElapsedTime1() {
+            const now = new Date().getTime();
+            const elapsedDistance = now - startDate1; // Calculate elapsed time
+
+            if (elapsedDistance < 0) { // Should not happen for elapsed time if date is in past
+                yearsSpan1.textContent = '00'; monthsSpan1.textContent = '00';
+                daysSpan1.textContent = '00'; hoursSpan1.textContent = '00';
+                minutesSpan1.textContent = '00'; secondsSpan1.textContent = '00';
+                return;
+            }
+
+            const seconds = Math.floor((elapsedDistance % (1000 * 60)) / 1000);
+            const minutes = Math.floor((elapsedDistance % (1000 * 60 * 60)) / (1000 * 60));
+            const hours = Math.floor((elapsedDistance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const days = Math.floor(elapsedDistance / (1000 * 60 * 60 * 24));
+
+            const totalDays = days;
+            const years = Math.floor(totalDays / 365.25);
+            const remainingDaysAfterYears = totalDays % 365.25;
+            const months = Math.floor(remainingDaysAfterYears / 30.44);
+
+            yearsSpan1.textContent = String(years).padStart(2, '0');
+            monthsSpan1.textContent = String(months).padStart(2, '0');
+            daysSpan1.textContent = String(Math.floor(remainingDaysAfterYears % 30.44)).padStart(2, '0');
+            hoursSpan1.textContent = String(hours).padStart(2, '0');
+            minutesSpan1.textContent = String(minutes).padStart(2, '0');
+            secondsSpan1.textContent = String(seconds).padStart(2, '0');
+        }
+
+        // --- Time Elapsed Counter Logic for Second Timer (e.g., Our Relationship) ---
+        // !!! IMPORTANT: Set the START DATE for the second timer here !!!
+        // This could be the date you met, started dating, etc., from 2023.
+        const startDate2 = new Date('January 1, 2023 00:00:00').getTime(); // Placeholder: Set this to the actual start date!
+
+        const yearsSpan2 = document.getElementById('years2');
+        const monthsSpan2 = document.getElementById('months2');
+        const daysSpan2 = document.getElementById('days2');
+        const hoursSpan2 = document.getElementById('hours2');
+        const minutesSpan2 = document.getElementById('minutes2');
+        const secondsSpan2 = document.getElementById('seconds2');
+
+        function updateElapsedTime2() {
+            const now = new Date().getTime();
+            const elapsedDistance = now - startDate2; // Calculate elapsed time
+
+            if (elapsedDistance < 0) { // Should not happen for elapsed time if date is in past
+                yearsSpan2.textContent = '00'; monthsSpan2.textContent = '00';
+                daysSpan2.textContent = '00'; hoursSpan2.textContent = '00';
+                minutesSpan2.textContent = '00'; secondsSpan2.textContent = '00';
+                return;
+            }
+
+            const seconds = Math.floor((elapsedDistance % (1000 * 60)) / 1000);
+            const minutes = Math.floor((elapsedDistance % (1000 * 60 * 60)) / (1000 * 60));
+            const hours = Math.floor((elapsedDistance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const days = Math.floor(elapsedDistance / (1000 * 60 * 60 * 24));
+
+            const totalDays = days;
+            const years = Math.floor(totalDays / 365.25);
+            const remainingDaysAfterYears = totalDays % 365.25;
+            const months = Math.floor(remainingDaysAfterYears / 30.44);
+
+            yearsSpan2.textContent = String(years).padStart(2, '0');
+            monthsSpan2.textContent = String(months).padStart(2, '0');
+            daysSpan2.textContent = String(Math.floor(remainingDaysAfterYears % 30.44)).padStart(2, '0');
+            hoursSpan2.textContent = String(hours).padStart(2, '0');
+            minutesSpan2.textContent = String(minutes).padStart(2, '0');
+            secondsSpan2.textContent = String(seconds).padStart(2, '0');
+        }
+
+        // Update both elapsed time counters every 1 second
+        const elapsedTimeInterval1 = setInterval(updateElapsedTime1, 1000);
+        const elapsedTimeInterval2 = setInterval(updateElapsedTime2, 1000);
+
+        // Initial calls to display the timers immediately
+        updateElapsedTime1();
+        updateElapsedTime2();
+    </script>
+</body>
+</html>
